@@ -42,9 +42,14 @@ class QueryBuilder
 
     public function __construct(Model $model, Request $request)
     {
-        $this->orderBy = config('api-query-builder.orderBy');
+        $this->orderBy = [
+            [
+            'column' => $model->getKeyName(),
+            'direction' => 'desc'
+            ]
+        ];
 
-        $this->limit = config('api-query-builder.limit');
+        $this->limit = $model->getPerPage();
 
         $this->excludedParameters = array_merge($this->excludedParameters, config('api-query-builder.excludedParameters'));
 
@@ -325,7 +330,7 @@ class QueryBuilder
 
     private function hasTableColumn($column)
     {
-        return (Schema::hasColumn($this->model->getTable(), $column));
+        return (Schema::setConnection($this->model->getConnection())->hasColumn($this->model->getTable(), $column));
     }
 
     private function hasCustomFilter($key)
